@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState,useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { sendEmail } from '../services/email.service';
+import {Editor} from "@tinymce/tinymce-react";
  
 
 function EmailSender() {
@@ -11,6 +12,8 @@ function EmailSender() {
   });
 
   const [sending,setSending] = useState(false);
+
+  const editorRef = useRef(null);
 
   async function handleFieldChange(event, name) {
     setEmailData({ ...emailData, [name]: event.target.value });
@@ -43,7 +46,7 @@ function EmailSender() {
 
   return (
     <div className="w-full min-h-screen flex justify-center items-center">
-      <div className="email_card bg-white dark:bg-gray-700 dark:text-white dark:border-none md:w-1/3 w-full mx-4 md:mx-0 p-4 rounded-lg border shadow">
+      <div className="email_card bg-white dark:bg-gray-700 dark:text-white dark:border-none md:w-1/2 w-full mx-4 md:mx-0 p-4 rounded-lg border shadow">
         <h1 className="text-gray-900 dark:text-gray-200 text-3xl">Email Sender</h1>
         <p className="text-gray-700" dark:text-gray-300>
           Send email to your favorite person with your own app...
@@ -82,14 +85,44 @@ function EmailSender() {
             <label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Your message
             </label>
-            <textarea
+            {/*<textarea
               value={emailData.message}
               onChange={(event) => handleFieldChange(event, 'message')}
               id="message"
               rows="5"
               placeholder="Write your thoughts here..."
               className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            ></textarea>
+            ></textarea> */}
+
+            <Editor  
+                    onEditorChange={(event)=> {
+                        setEmailData({...emailData,'message':editorRef.current.getContent()})
+                    }}
+                    onInit={(evt, editor) => editorRef.current = editor}
+                    apiKey='5r17p6cio2f459x0phzuh3a64s0ui7dj8r6hne8snar8gkcz'
+                    initialValue="<p>This is the initial content of the editor.</p>"
+
+                    init={{
+                        plugins: [
+                          // Core editing features
+                          'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
+                          // Your account includes a free trial of TinyMCE premium features
+                          // Try the most popular premium features until Dec 12, 2024:
+                          'checklist', 'mediaembed', 'casechange', 'export', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown',
+                          // Early access to document converters
+                          'importword', 'exportword', 'exportpdf'
+                        ],
+                        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                        tinycomments_mode: 'embedded',
+                        tinycomments_author: 'Author name',
+                        mergetags_list: [
+                          { value: 'First.Name', title: 'First Name' },
+                          { value: 'Email', title: 'Email' },
+                        ],
+                        ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+                      }}
+            
+            />
           </div>
           {/*loader  */}
           {sending && (<div className='loader flex-col gap-2 items-center flex justify-center mt-4'>
